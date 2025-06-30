@@ -1,5 +1,13 @@
 # LAMP Stack Deployment Guide
 
+**Author**: Ishmael Gyamfi
+
+## 🌐 Live Demo
+
+**[View Live Application](http://lamp-stack-alb-dev-795354098.eu-west-1.elb.amazonaws.com/)**
+
+*Experience the deployed three-tier LAMP stack with real-time visitor tracking.*
+
 ## Quick Deployment
 
 ### 1. Prerequisites Setup
@@ -43,6 +51,12 @@ terraform apply
 
 # Test the visitor tracking application
 ./test_app.sh
+
+# Check database connectivity
+./check-db.sh
+
+# Fix database issues if needed
+./fix-db-connection.sh
 ```
 
 ## Architecture Overview
@@ -60,15 +74,17 @@ Internet Gateway
    [MySQL + CloudWatch]
 ```
 
-## Cost Breakdown (Monthly)
+## Cost Breakdown (Monthly - EU-West-1)
 
-| Component | Cost (USD) |
-|-----------|------------|
-| 3x t3.micro instances | ~$15 |
-| NAT Gateway | ~$32 |
-| EBS Storage (24GB) | ~$2.40 |
-| CloudWatch | ~$5 |
-| **Total** | **~$55** |
+| Component | Cost (USD) | Notes |
+|-----------|------------|-------|
+| 3x t3.micro instances | ~$15 | Free Tier: 750 hours/month |
+| Application Load Balancer | ~$16 | ~$0.0225/hour + LCU charges |
+| NAT Gateway | ~$32 | ~$0.045/hour + data transfer |
+| EBS Storage (24GB gp3) | ~$2.40 | ~$0.10/GB/month |
+| CloudWatch Logs/Metrics | ~$5 | 7-day retention |
+| Data Transfer | ~$2 | Minimal inter-AZ transfer |
+| **Total** | **~$72** | **Actual production cost** |
 
 ## Key Features
 
@@ -128,9 +144,19 @@ aws ec2 describe-key-pairs --query 'KeyPairs[].KeyName'
 - Verify security group HTTP access
 
 **4. Database Connection Issues**
-- Check MySQL service status
-- Verify security group port 3306
-- Confirm password configuration
+```bash
+# Check database status
+./check-db.sh
+
+# Fix database connectivity
+./fix-db-connection.sh
+
+# Test direct connection
+./test-db-connection.sh
+```
+- MySQL initialization takes 2-3 minutes
+- SSM agent needs time to register
+- Check CloudWatch logs for MySQL errors
 
 ### Log Locations
 
@@ -140,6 +166,17 @@ aws ec2 describe-key-pairs --query 'KeyPairs[].KeyName'
 - `lamp-stack-app-access`: App tier access logs
 - `lamp-stack-app-error`: App tier error logs
 - `lamp-stack-db-mysql`: MySQL logs
+
+## Deployment Scripts
+
+### Available Scripts
+- `deploy.sh` - Full infrastructure deployment
+- `validate.sh` - Post-deployment validation
+- `check-db.sh` - Database health check
+- `fix-db-connection.sh` - Database connectivity fix
+- `test-db-connection.sh` - Database connection test
+- `recreate-db-only.sh` - Recreate database instance
+- `update-web.sh` - Update web tier only
 
 ## Cleanup
 

@@ -12,7 +12,7 @@ aws ec2 create-key-pair \
     --query 'KeyMaterial' \
     --output text > "$KEY_NAME.pem"
 
-# Set proper permissions
+# Settin proper permissions
 chmod 400 "$KEY_NAME.pem"
 
 echo "Key pair created successfully!"
